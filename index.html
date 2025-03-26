@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pesan Spesial Buat Kamu</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Antique:wght@400;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/typeit@8.7.0/dist/index.umd.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Shippori Antique', sans-serif;
+            text-align: center;
+            background: url('https://infokost.id/blog/wp-content/uploads/2023/03/065397400_1588826930-crowd-of-people-gathering-near-jama-masjid-delhi-2989625__1_.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        #Content {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        #kadoIn img {
+            width: 100px;
+            cursor: pointer;
+        }
+        #ket {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        .pesan {
+            font-size: 18px;
+            font-weight: bold;
+            min-height: 25px;
+            opacity: 0;
+        }
+        #Tombol a {
+            display: none;
+            text-decoration: none;
+            background: #25D366;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .sembunyi {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="Content">
+        <div id="kadoIn">
+            <img src="https://png.pngtree.com/png-clipart/20230202/ourmid/pngtree-simple-love-envelopes-png-image_6583208.png" alt="Surat">
+        </div>
+        <p id="ket">Klik suratnya untuk melihat pesan!</p>
+
+        <p id="pesan1" class="pesan"></p>
+        <p id="pesan2" class="pesan"></p>
+        <p id="pesan3" class="pesan"></p>
+
+        <div id="Tombol">
+            <a id="By" onclick="kirimPesan()">Kirim Pesan ke WhatsApp</a>
+        </div>
+    </div>
+
+    <!-- Elemen Audio Tersembunyi -->
+    <audio src="https://files.catbox.moe/e4tsl2.mp3" id="linkmp3" class="sembunyi"></audio>
+
+    <script>
+        let namaPengguna = "";
+        let animasiSelesai = false;
+
+        async function inputNama() {
+            const { value: nama } = await Swal.fire({
+                title: 'Masukkan Nama Kamu',
+                input: 'text',
+                inputPlaceholder: 'Tuliskan namamu di sini',
+                allowOutsideClick: false,
+                inputValidator: (value) => {
+                    if (!value) return 'Nama tidak boleh kosong!';
+                }
+            });
+
+            namaPengguna = nama;
+        }
+
+        document.getElementById("kadoIn").onclick = async function () {
+            if (!animasiSelesai) {
+                await inputNama();
+                document.getElementById("kadoIn").style.display = "none";
+                document.getElementById("ket").style.display = "none";
+
+                // Memulai pemutaran audio
+                document.getElementById("linkmp3").play();
+
+                let teksPesan = [
+                    `Selamat Hari Raya Idul Fitri, ${namaPengguna}!`,
+                    `Minal aidzin walfaizin,mohon maaf lahir dan batin! ✨`,
+                    `Ada kipas ada angin kalo ada duit siniin 😋 `
+                ];
+
+                animasiMengetik(teksPesan, () => {
+                    document.getElementById("By").style.display = "inline-block";
+                });
+
+                animasiSelesai = true;
+            }
+        }
+
+        function animasiMengetik(teksArray, selesaiCallback) {
+            let index = 0;
+
+            function ketikSatuPersatu(teks, elemenID, lanjutkan) {
+                let elemen = document.getElementById(`pesan${elemenID}`);
+                elemen.style.opacity = 1;
+
+                new TypeIt(elemen, {
+                    strings: teks,
+                    speed: 50,
+                    waitUntilVisible: true,
+                    afterComplete: function () {
+                        if (lanjutkan) lanjutkan();
+                    }
+                }).go();
+            }
+
+            function tampilkanPesanBerikutnya() {
+                if (index < teksArray.length) {
+                    ketikSatuPersatu(teksArray[index], index + 1, tampilkanPesanBerikutnya);
+                    index++;
+                } else if (selesaiCallback) {
+                    selesaiCallback();
+                }
+            }
+
+            tampilkanPesanBerikutnya();
+        }
+
+        function kirimPesan() {
+            let text = `Selamat Hari Raya Idul Fitri, ${namaPengguna}! Mohon maaf lahir dan batin!`;
+            let url = `https://api.whatsapp.com/send?phone=62895384050495&text=${encodeURIComponent(text)}`;
+            window.location.href = url;
+        }
+    </script>
+
+</body>
+</html>
